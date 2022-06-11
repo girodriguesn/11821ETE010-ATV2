@@ -32,14 +32,18 @@
 
 /* Register Addresses *******************************************************/
 
-#define STM32_RCC_AHB1ENR (STM32_RCC_BASE+STM32_RCC_AHB1ENR_OFFSET)
-#define STM32_GPIOC_MODER (STM32_GPIOC_BASE+STM32_GPIO_MODER_OFFSET)
-#define STM32_GPIOC_OTYPER (STM32_GPIOC_BASE+STM32_GPIO_OTYPER_OFFSET)
-#define STM32_GPIOC_PUPDR (STM32_GPIOC_BASE+STM32_GPIO_PUPDR_OFFSET)
-#define STM32_GPIOC_BSRR (STM32_GPIOC_BASE + STM32_GPIO_BSRR_OFFSET)
+#define STM32_RCC_AHB1ENR   (STM32_RCC_BASE+STM32_RCC_AHB1ENR_OFFSET)
+#define STM32_GPIOC_MODER   (STM32_GPIOC_BASE+STM32_GPIO_MODER_OFFSET)
+#define STM32_GPIOC_OTYPER  (STM32_GPIOC_BASE+STM32_GPIO_OTYPER_OFFSET)
+#define STM32_GPIOC_PUPDR   (STM32_GPIOC_BASE+STM32_GPIO_PUPDR_OFFSET)
+#define STM32_GPIOC_BSRR    (STM32_GPIOC_BASE + STM32_GPIO_BSRR_OFFSET)
+#define STM32_GPIOA_MODER   (STM32_GPIOA_BASE+STM32_GPIO_MODER_OFFSET) //GPIOA pino PA0
+#define STM32_GPIOA_PUPDR   (STM32_GPIOA_BASE+STM32_GPIO_PUPDR_OFFSET)
+#define STM32_GPIOA_IDR     (STM32_GPIOA_BASE+STM32_GPIO_IDR_OFFSET)
 
 /* AHB1 Peripheral Clock enable register */
 
+#define RCC_AHB1ENR_GPIOAEN (1 << 0)            /* Bit 2: IO port A clock enable */
 #define RCC_AHB1ENR_GPIOCEN (1 << 2)            /* Bit 2: IO port C clock enable */
 
 /* GPIO port mode register */
@@ -66,6 +70,10 @@
 #define GPIO_PUPDR13_SHIFT (26)
 #define GPIO_PUPDR13_MASK (3 << GPIO_PUPDR13_SHIFT)
 
+/*GPIO port input data register*/
+
+#define GPIO_IDR(n) (1 << (n))
+
 /* GPIO port bit set/reset register */
 
 #define GPIO_BSRR_SET(n) (1 << (n))
@@ -73,7 +81,6 @@
 
 #define LED_DELAY 100
 
-static uint32_t led_status;
 static const char fw_version[] = {'V', '1', '.', '0'};
 static uint32_t led_status;
 
