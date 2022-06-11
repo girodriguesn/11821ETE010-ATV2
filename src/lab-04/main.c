@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
     while(1)
     {
          reg = *pGPIOA_IDR;
-        if ( (reg & GPIO_IDR(0)) == 0) //botao pressionado
+        if ( (reg & GPIO_IDR(0)) == 0) 
         {
             cont++;
             if (cont > 1)
