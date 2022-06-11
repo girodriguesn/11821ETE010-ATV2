@@ -90,18 +90,35 @@ int main(int argc, char *argv[])
     
     /* Ponteiros para registradores */
     
-    uint32_t *pRCC_AHB1ENR = (uint32_t *)STM32_RCC_AHB1ENR;
-    uint32_t *pGPIOC_MODER = (uint32_t *)STM32_GPIOC_MODER;
+    uint32_t *pRCC_AHB1ENR  = (uint32_t *)STM32_RCC_AHB1ENR;
+    uint32_t *pGPIOC_MODER  = (uint32_t *)STM32_GPIOC_MODER;
     uint32_t *pGPIOC_OTYPER = (uint32_t *)STM32_GPIOC_OTYPER;
-    uint32_t *pGPIOC_PUPDR = (uint32_t *)STM32_GPIOC_PUPDR;
-    uint32_t *pGPIOC_BSRR = (uint32_t *)STM32_GPIOC_BSRR;
-    
-    /* Habilita clock GPIOC */
+    uint32_t *pGPIOC_PUPDR  = (uint32_t *)STM32_GPIOC_PUPDR;
+    uint32_t *pGPIOC_BSRR   = (uint32_t *)STM32_GPIOC_BSRR;
+    uint32_t *pGPIOA_MODER  = (uint32_t *)STM32_GPIOA_MODER; //vetor p/ PA0
+    uint32_t *pGPIOA_PUPDR  = (uint32_t *)STM32_GPIOA_PUPDR; //ponteiro p/ pull up PA0
+    uint32_t *pGPIOA_IDR    = (uint32_t *)STM32_GPIOA_IDR;
+
+    /* Habilita clock GPIOC e GPIOA */
     
     reg = *pRCC_AHB1ENR;
     reg |= RCC_AHB1ENR_GPIOCEN;
     *pRCC_AHB1ENR = reg;
     
+    /* Configura o PA0 como entrada pull-up ON e pulldown OFF */
+
+    //pull_up
+    reg = *pGPIOA_PUPDR;
+    reg &= ~(GPIO_PUPDR_MASK(0));
+    reg |= (GPIO_PUPDR_PULLUP << GPIO_PUPDR_SHIFT(0));
+    *pGPIOA_PUPDR = reg;
+
+    //pull_down
+    reg = *pGPIOA_MODER;
+    reg &= ~(GPIO_MODER_MASK(0));
+    reg |= (GPIO_MODER_INPUT << GPIO_MODER_SHIFT(0));
+    *pGPIOA_MODER = reg;
+
     /* Configura PC13 como saida pull-up off e pull-down off */
     
     reg = *pGPIOC_MODER;
