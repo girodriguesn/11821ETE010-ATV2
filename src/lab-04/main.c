@@ -37,7 +37,7 @@
 #define STM32_GPIOC_OTYPER  (STM32_GPIOC_BASE+STM32_GPIO_OTYPER_OFFSET)
 #define STM32_GPIOC_PUPDR   (STM32_GPIOC_BASE+STM32_GPIO_PUPDR_OFFSET)
 #define STM32_GPIOC_BSRR    (STM32_GPIOC_BASE + STM32_GPIO_BSRR_OFFSET)
-#define STM32_GPIOA_MODER   (STM32_GPIOA_BASE+STM32_GPIO_MODER_OFFSET) //GPIOA pino PA0
+#define STM32_GPIOA_MODER   (STM32_GPIOA_BASE+STM32_GPIO_MODER_OFFSET) 
 #define STM32_GPIOA_PUPDR   (STM32_GPIOA_BASE+STM32_GPIO_PUPDR_OFFSET)
 #define STM32_GPIOA_IDR     (STM32_GPIOA_BASE+STM32_GPIO_IDR_OFFSET)
 
@@ -52,8 +52,9 @@
 #define GPIO_MODER_OUTPUT (1)                   /* General purpose output mode */
 #define GPIO_MODER_ALT (2)                      /* Alternate mode */
 #define GPIO_MODER_ANALOG (3)                   /* Analog mode */
-#define GPIO_MODER13_SHIFT (26)
-#define GPIO_MODER13_MASK (3 << GPIO_MODER13_SHIFT)
+
+#define GPIO_MODER_SHIFT(n) ((n) << 1) 
+#define GPIO_MODER_MASK(n) (3 << GPIO_MODER_SHIFT(n))
 
 /* GPIO port output type register */
 
@@ -64,11 +65,11 @@
 
 /* GPIO port pull-up/pull-down register */
 
-#define GPIO_PUPDR_NONE (0)                     /* No pull-up, pull-down */
-#define GPIO_PUPDR_PULLUP (1)                   /* Pull-up */
-#define GPIO_PUPDR_PULLDOWN (2)                 /* Pull-down */
-#define GPIO_PUPDR13_SHIFT (26)
-#define GPIO_PUPDR13_MASK (3 << GPIO_PUPDR13_SHIFT)
+#define GPIO_PUPDR_NONE (0) /* No pull-up, pull-down */
+#define GPIO_PUPDR_PULLUP (1) /* Pull-up */
+#define GPIO_PUPDR_PULLDOWN (2) /* Pull-down */
+#define GPIO_PUPDR_SHIFT(n) ((n) << 1) //versao generica
+#define GPIO_PUPDR_MASK(n) (3 << GPIO_PUPDR_SHIFT(n))
 
 /*GPIO port input data register*/
 
@@ -95,8 +96,8 @@ int main(int argc, char *argv[])
     uint32_t *pGPIOC_OTYPER = (uint32_t *)STM32_GPIOC_OTYPER;
     uint32_t *pGPIOC_PUPDR  = (uint32_t *)STM32_GPIOC_PUPDR;
     uint32_t *pGPIOC_BSRR   = (uint32_t *)STM32_GPIOC_BSRR;
-    uint32_t *pGPIOA_MODER  = (uint32_t *)STM32_GPIOA_MODER; //vetor p/ PA0
-    uint32_t *pGPIOA_PUPDR  = (uint32_t *)STM32_GPIOA_PUPDR; //ponteiro p/ pull up PA0
+    uint32_t *pGPIOA_MODER  = (uint32_t *)STM32_GPIOA_MODER; 
+    uint32_t *pGPIOA_PUPDR  = (uint32_t *)STM32_GPIOA_PUPDR; 
     uint32_t *pGPIOA_IDR    = (uint32_t *)STM32_GPIOA_IDR;
 
     /* Habilita clock GPIOC e GPIOA */
@@ -122,28 +123,39 @@ int main(int argc, char *argv[])
     /* Configura PC13 como saida pull-up off e pull-down off */
     
     reg = *pGPIOC_MODER;
-    reg &= ~(GPIO_MODER13_MASK);
-    reg |= (GPIO_MODER_OUTPUT << GPIO_MODER13_SHIFT);
+    reg &= ~(GPIO_MODER_MASK(13));
+    reg |= (GPIO_MODER_OUTPUT << GPIO_MODER_SHIFT(13));
     *pGPIOC_MODER = reg;
-    
+
     reg = *pGPIOC_OTYPER;
     reg &= ~(GPIO_OT13_MASK);
     reg |= (GPIO_OTYPER_PP << GPIO_OT13_SHIFT);
-    reg = *pGPIOC_PUPDR;
+    *pGPIOC_OTYPER = reg;
 
     reg = *pGPIOC_PUPDR;
-    reg &= ~(GPIO_PUPDR13_MASK);
-    reg |= (GPIO_PUPDR_NONE << GPIO_PUPDR13_SHIFT);
+    reg &= ~(GPIO_PUPDR_MASK(13));
+    reg |= (GPIO_PUPDR_NONE << GPIO_PUPDR_SHIFT(13));
     *pGPIOC_PUPDR = reg;
+
+    static const uint32_t led_value[] = {200,600};
+    uint8_t cont;
 
     while(1)
     {
+         reg = *pGPIOA_IDR;
+        if ( (reg & GPIO_IDR(0)) == 0) //botao pressionado
+        {
+            cont++;
+            if (cont > 1)
+            {
+                cont = 0;
+            }    
+        }
         *pGPIOC_BSRR = GPIO_BSRR_SET(13);
-        led_status = 0;
-        for (uint32_t i = 0; i < LED_DELAY; i++);
+        for (uint32_t i = 0; i < led_value[cont]; i++);
         *pGPIOC_BSRR = GPIO_BSRR_RST(13);
-        led_status = 1;
-        for (uint32_t i = 0; i < LED_DELAY; i++);
+        for (uint32_t i = 0; i < led_value[cont]; i++);
+
     }
     /* Nao deveria chegar aqui */
     return EXIT_SUCCESS;
